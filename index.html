@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Young Yums - Keep Him Young!</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --yums-yellow: #ffd93d;
+      --yums-orange: #ff9f43;
+      --yums-green: #6bcb77;
+      --yums-blue: #4d96ff;
+      --yums-pink: #ff6b9d;
+      --yums-brown: #8b4513;
+      --bg-cream: #fff8e7;
+      --shadow: rgba(0, 0, 0, 0.15);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Quicksand', sans-serif;
+      background: linear-gradient(135deg, var(--bg-cream) 0%, #ffe4b5 50%, #fff5d6 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .game-container {
+      background: white;
+      border-radius: 24px;
+      padding: 2rem;
+      box-shadow: 0 20px 60px var(--shadow), 0 0 0 4px var(--yums-yellow);
+      max-width: 600px;
+      width: 95%;
+    }
+
+    h1 {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 2.5rem;
+      color: var(--yums-orange);
+      text-align: center;
+      text-shadow: 2px 2px 0 var(--yums-yellow);
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #666;
+      margin-bottom: 1.5rem;
+      font-size: 1rem;
+    }
+
+    .stats-bar {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stat {
+      flex: 1;
+      background: linear-gradient(180deg, #fff 0%, #f8f8f8 100%);
+      padding: 0.75rem 1rem;
+      border-radius: 12px;
+      text-align: center;
+      border: 2px solid var(--yums-yellow);
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-value {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 1.5rem;
+      color: var(--yums-orange);
+    }
+
+    .age-bar-container {
+      margin-bottom: 1rem;
+    }
+
+    .age-bar-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .age-bar {
+      height: 20px;
+      background: #e0e0e0;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .age-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--yums-green), var(--yums-yellow), var(--yums-orange));
+      transition: width 0.3s ease;
+      border-radius: 10px;
+    }
+
+    .age-bar-fill.old {
+      background: linear-gradient(90deg, var(--yums-orange), #c0392b, #7f8c8d);
+    }
+
+    .game-area {
+      position: relative;
+      height: 320px;
+      background: linear-gradient(180deg, #87ceeb 0%, #e0f4ff 40%, #f5e6d3 100%);
+      border-radius: 16px;
+      overflow: hidden;
+      cursor: crosshair;
+    }
+
+    .character {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      transition: transform 0.2s ease, filter 0.3s ease;
+    }
+
+    .character:hover {
+      transform: translateX(-50%) scale(1.05);
+    }
+
+    .character.sad {
+      filter: grayscale(0.3) brightness(0.9);
+    }
+
+    .character.old {
+      filter: grayscale(0.6) brightness(0.85) sepia(0.2);
+    }
+
+    .character-body {
+      width: 120px;
+      height: 100px;
+      background: var(--yums-yellow);
+      border-radius: 50% 50% 45% 45%;
+      position: relative;
+      box-shadow: inset 0 -10px 0 rgba(0,0,0,0.1);
+    }
+
+    .character-face {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+    }
+
+    .character-eyes {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin-bottom: 8px;
+    }
+
+    .eye {
+      width: 18px;
+      height: 18px;
+      background: #333;
+      border-radius: 50%;
+      animation: blink 4s infinite;
+    }
+
+    .character.old .eye {
+      width: 14px;
+      height: 14px;
+      background: #555;
+    }
+
+    .character-mouth {
+      width: 30px;
+      height: 15px;
+      background: var(--yums-orange);
+      border-radius: 0 0 50% 50%;
+      margin: 0 auto;
+    }
+
+    .character.sad .character-mouth {
+      border-radius: 50% 50% 0 0;
+      transform: scaleY(-1);
+    }
+
+    .character.old .character-body {
+      background: #e8d4a0;
+      box-shadow: inset 0 -10px 0 rgba(0,0,0,0.15);
+    }
+
+    @keyframes blink {
+      0%, 45%, 55%, 100% { transform: scaleY(1); }
+      50% { transform: scaleY(0.1); }
+    }
+
+    .cereal {
+      position: absolute;
+      font-size: 2.5rem;
+      cursor: pointer;
+      user-select: none;
+      animation: wobble 0.5s ease-in-out infinite alternate;
+      transition: transform 0.2s;
+    }
+
+    .cereal:hover {
+      transform: scale(1.2);
+    }
+
+    .cereal.caught {
+      animation: nom 0.3s ease forwards;
+    }
+
+    @keyframes wobble {
+      from { transform: rotate(-5deg); }
+      to { transform: rotate(5deg); }
+    }
+
+    @keyframes nom {
+      to {
+        transform: scale(0) translateY(-50px);
+        opacity: 0;
+      }
+    }
+
+    .instructions {
+      text-align: center;
+      margin-top: 1rem;
+      color: #666;
+      font-size: 0.9rem;
+    }
+
+    .game-over-overlay, .start-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    .game-over-overlay.show, .start-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal {
+      background: white;
+      padding: 2rem 3rem;
+      border-radius: 20px;
+      text-align: center;
+      max-width: 400px;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.3);
+      animation: popIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+
+    @keyframes popIn {
+      from {
+        transform: scale(0.8);
+        opacity: 0;
+      }
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .modal h2 {
+      font-family: 'Fredoka', sans-serif;
+      color: var(--yums-orange);
+      margin-bottom: 0.5rem;
+      font-size: 1.8rem;
+    }
+
+    .modal p {
+      color: #666;
+      margin-bottom: 1.5rem;
+    }
+
+    .btn {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 1.2rem;
+      padding: 0.75rem 2rem;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      background: linear-gradient(180deg, var(--yums-yellow), var(--yums-orange));
+      color: white;
+      text-shadow: 1px 1px 0 rgba(0,0,0,0.2);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(255, 159, 67, 0.4);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .character-age-text {
+      font-size: 0.85rem;
+      margin-top: 4px;
+      font-weight: 700;
+      color: var(--yums-orange);
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <h1>🥣 Young Yums</h1>
+    <p class="subtitle">Feed him cereal to keep him young!</p>
+
+    <div class="stats-bar">
+      <div class="stat">
+        <div class="stat-label">Youth Level</div>
+        <div class="stat-value" id="youthDisplay">100%</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Cereal Fed</div>
+        <div class="stat-value" id="scoreDisplay">0</div>
+      </div>
+    </div>
+
+    <div class="age-bar-container">
+      <div class="age-bar-label">
+        <span>Young ←</span>
+        <span id="ageText">Age: 0</span>
+        <span>→ Old</span>
+      </div>
+      <div class="age-bar">
+        <div class="age-bar-fill" id="ageBar" style="width: 100%"></div>
+      </div>
+    </div>
+
+    <div class="game-area" id="gameArea">
+      <div class="character" id="character">
+        <div class="character-body">
+          <div class="character-face">
+            <div class="character-eyes">
+              <div class="eye"></div>
+              <div class="eye"></div>
+            </div>
+            <div class="character-mouth"></div>
+          </div>
+        </div>
+        <div class="character-age-text" id="charAgeText">Happy!</div>
+      </div>
+    </div>
+
+    <p class="instructions">Click the falling Young Yums cereal bowls to feed him!</p>
+  </div>
+
+  <div class="start-overlay show" id="startOverlay">
+    <div class="modal">
+      <h2>🥣 Young Yums</h2>
+      <p>Your friend needs Young Yums cereal to stay young! Click the falling cereal bowls to feed him. Don't let him get too old!</p>
+      <button class="btn" id="startBtn">Start Game</button>
+    </div>
+  </div>
+
+  <div class="game-over-overlay" id="gameOverOverlay">
+    <div class="modal">
+      <h2>He grew up! 😢</h2>
+      <p>He got too old without enough Young Yums. You fed him <strong id="finalScore">0</strong> bowls of cereal.</p>
+      <button class="btn" id="restartBtn">Play Again</button>
+    </div>
+  </div>
+
+  <script>
+    const CEREAL_EMOJIS = ['🥣', '🥛', '🥄'];
+    const MAX_AGE = 100;
+    const MIN_AGE = 0;
+    const AGE_INCREASE_RATE = 0.15;
+    const CEREAL_YOUNG_VALUE = 8;
+    const SPAWN_INTERVAL = 1500;
+    const FALL_SPEED = 2;
+
+    let gameState = {
+      running: false,
+      age: 0,
+      score: 0,
+      cereals: [],
+      lastSpawn: 0,
+      animationId: null
+    };
+
+    const gameArea = document.getElementById('gameArea');
+    const character = document.getElementById('character');
+    const ageBar = document.getElementById('ageBar');
+    const ageText = document.getElementById('ageText');
+    const youthDisplay = document.getElementById('youthDisplay');
+    const scoreDisplay = document.getElementById('scoreDisplay');
+    const charAgeText = document.getElementById('charAgeText');
+
+    function spawnCereal() {
+      if (!gameState.running) return;
+
+      const cereal = document.createElement('div');
+      cereal.className = 'cereal';
+      cereal.textContent = '🥣';
+      cereal.dataset.id = Date.now();
+      cereal.style.left = Math.random() * (gameArea.offsetWidth - 50) + 'px';
+      cereal.style.top = '-50px';
+      gameArea.appendChild(cereal);
+      gameState.cereals.push({
+        el: cereal,
+        x: parseInt(cereal.style.left),
+        y: -50,
+        id: cereal.dataset.id
+      });
+    }
+
+    function feedCharacter(cerealData) {
+      gameState.age = Math.max(MIN_AGE, gameState.age - CEREAL_YOUNG_VALUE);
+      gameState.score++;
+      cerealData.el.classList.add('caught');
+      setTimeout(() => cerealData.el.remove(), 300);
+      gameState.cereals = gameState.cereals.filter(c => c.id !== cerealData.id);
+    }
+
+    function updateCharacterAppearance() {
+      const youth = 100 - gameState.age;
+      youthDisplay.textContent = Math.max(0, Math.round(youth)) + '%';
+      scoreDisplay.textContent = gameState.score;
+
+      ageBar.style.width = (100 - gameState.age) + '%';
+      ageBar.classList.toggle('old', gameState.age > 50);
+      ageText.textContent = 'Age: ' + Math.round(gameState.age);
+
+      character.classList.remove('sad', 'old');
+      if (gameState.age > 70) {
+        character.classList.add('old');
+        charAgeText.textContent = 'Very old!';
+      } else if (gameState.age > 40) {
+        character.classList.add('sad');
+        charAgeText.textContent = 'Needs cereal!';
+      } else {
+        charAgeText.textContent = 'Happy!';
+      }
+    }
+
+    function gameLoop(timestamp) {
+      if (!gameState.running) return;
+
+      if (timestamp - gameState.lastSpawn > SPAWN_INTERVAL) {
+        spawnCereal();
+        gameState.lastSpawn = timestamp;
+      }
+
+      gameState.age += AGE_INCREASE_RATE;
+      if (gameState.age >= MAX_AGE) {
+        endGame();
+        return;
+      }
+
+      gameState.cereals.forEach(c => {
+        c.y += FALL_SPEED;
+        c.el.style.top = c.y + 'px';
+        if (c.y > gameArea.offsetHeight) {
+          c.el.remove();
+          gameState.cereals = gameState.cereals.filter(x => x.id !== c.id);
+        }
+      });
+
+      updateCharacterAppearance();
+      gameState.animationId = requestAnimationFrame(gameLoop);
+    }
+
+    function endGame() {
+      gameState.running = false;
+      if (gameState.animationId) cancelAnimationFrame(gameState.animationId);
+      gameState.cereals.forEach(c => c.el.remove());
+      gameState.cereals = [];
+      document.getElementById('finalScore').textContent = gameState.score;
+      document.getElementById('gameOverOverlay').classList.add('show');
+    }
+
+    gameArea.addEventListener('click', (e) => {
+      if (!gameState.running) return;
+      const cereal = e.target.closest('.cereal');
+      if (cereal) {
+        const cerealData = gameState.cereals.find(c => c.el === cereal);
+        if (cerealData) feedCharacter(cerealData);
+      }
+    });
+
+    document.getElementById('startBtn').addEventListener('click', () => {
+      document.getElementById('startOverlay').classList.remove('show');
+      startGame();
+    });
+
+    document.getElementById('restartBtn').addEventListener('click', () => {
+      document.getElementById('gameOverOverlay').classList.remove('show');
+      startGame();
+    });
+
+    function startGame() {
+      gameState = {
+        running: true,
+        age: 0,
+        score: 0,
+        cereals: [],
+        lastSpawn: 0,
+        animationId: null
+      };
+      updateCharacterAppearance();
+      gameState.animationId = requestAnimationFrame(gameLoop);
+    }
+  </script>
+</body>
+</html>
