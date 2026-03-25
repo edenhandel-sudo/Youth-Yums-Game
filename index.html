@@ -394,7 +394,10 @@
       margin-top: 14px;
       gap: 12px;
       align-items: stretch;
-      justify-content: center;
+      justify-content: space-between;
+      position: sticky;
+      bottom: max(8px, env(safe-area-inset-bottom));
+      z-index: 20;
     }
 
     .touch-pad,
@@ -405,7 +408,7 @@
 
     .touch-pad {
       flex: 1;
-      max-width: 340px;
+      max-width: 360px;
     }
 
     .touch-actions {
@@ -418,7 +421,7 @@
       min-height: 64px;
       border-radius: 18px;
       border: 2px solid var(--yy-border);
-      background: white;
+      background: rgba(255, 255, 255, 0.96);
       font-family: "Fredoka", sans-serif;
       font-size: 1.5rem;
       font-weight: 700;
@@ -469,12 +472,69 @@
         flex-direction: column;
       }
 
+      .content-grid {
+        gap: 14px;
+      }
+
+      .canvas-wrap {
+        border-radius: 14px;
+      }
+
       .touch-controls {
         display: flex;
       }
 
+      .touch-pad {
+        max-width: none;
+      }
+
+      .touch-btn {
+        min-height: 72px;
+        font-size: 1.7rem;
+        border-radius: 20px;
+      }
+
       .footer-note {
         font-size: 0.8rem;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .stat {
+        padding: 10px;
+      }
+
+      .stat-value {
+        font-size: 1.05rem;
+      }
+
+      .age-row,
+      .boss-row {
+        font-size: 0.82rem;
+      }
+
+      .touch-controls {
+        gap: 10px;
+        margin-top: 12px;
+      }
+
+      .touch-pad,
+      .touch-actions {
+        gap: 8px;
+      }
+
+      .touch-actions {
+        min-width: 92px;
+      }
+
+      .touch-btn {
+        min-height: 76px;
+        font-size: 1.45rem;
       }
     }
   </style>
@@ -1071,20 +1131,35 @@
     function bindHoldButton(button, key) {
       if (!button) return;
 
-      const down = (event) => {
-        event.preventDefault();
-        setTouchKey(key, true, button);
-      };
-
-      const up = (event) => {
-        event.preventDefault();
+      const release = () => {
         setTouchKey(key, false, button);
       };
 
-      button.addEventListener("pointerdown", down);
-      button.addEventListener("pointerup", up);
-      button.addEventListener("pointercancel", up);
-      button.addEventListener("pointerleave", up);
+      const press = (event) => {
+        event.preventDefault();
+        setTouchKey(key, true, button);
+        if (event.pointerId !== undefined && button.setPointerCapture) {
+          try {
+            button.setPointerCapture(event.pointerId);
+          } catch (error) {
+            // ignore pointer capture issues on browsers that partially support it
+          }
+        }
+      };
+
+      button.addEventListener("pointerdown", press);
+      button.addEventListener("pointerup", release);
+      button.addEventListener("pointercancel", release);
+      button.addEventListener("lostpointercapture", release);
+      button.addEventListener("contextmenu", (event) => event.preventDefault());
+
+      window.addEventListener("pointerup", release);
+      window.addEventListener("touchend", release, { passive: true });
+      window.addEventListener("touchcancel", release, { passive: true });
+      window.addEventListener("blur", release);
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) release();
+      });
     }
 
     function spawnParticles(x, y, color, count, spread = 6) {
