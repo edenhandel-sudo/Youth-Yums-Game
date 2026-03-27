@@ -1131,19 +1131,44 @@
     function bindHoldButton(button, key) {
       if (!button) return;
 
-      const release = () => {
-        setTouchKey(key, false, button);
+      const activePointers = new Set();
+
+      const updateButtonState = () => {
+        setTouchKey(key, activePointers.size > 0, button);
       };
 
       const press = (event) => {
         event.preventDefault();
-        setTouchKey(key, true, button);
-        if (event.pointerId !== undefined && button.setPointerCapture) {
-          try {
-            button.setPointerCapture(event.pointerId);
-          } catch (error) {
-            // ignore pointer capture issues on browsers that partially support it
+        if (event.pointerId !== undefined) {
+          activePointers.add(event.pointerId);
+          if (button.setPointerCapture) {
+            try {
+              button.setPointerCapture(event.pointerId);
+            } catch (error) {
+              // ignore pointer capture issues on browsers that partially support it
+            }
           }
+        } else {
+          activePointers.add("mouse");
+        }
+        updateButtonState();
+      };
+
+      const releasePointer = (pointerId) => {
+        if (pointerId !== undefined) {
+          activePointers.delete(pointerId);
+        } else {
+          activePointers.clear();
+        }
+        updateButtonState();
+      };
+
+      const release = (event) => {
+        if (event) {
+          event.preventDefault();
+          releasePointer(event.pointerId);
+        } else {
+          releasePointer();
         }
       };
 
@@ -1153,12 +1178,11 @@
       button.addEventListener("lostpointercapture", release);
       button.addEventListener("contextmenu", (event) => event.preventDefault());
 
-      window.addEventListener("pointerup", release);
-      window.addEventListener("touchend", release, { passive: true });
-      window.addEventListener("touchcancel", release, { passive: true });
-      window.addEventListener("blur", release);
+      window.addEventListener("pointerup", (event) => releasePointer(event.pointerId));
+      window.addEventListener("pointercancel", (event) => releasePointer(event.pointerId));
+      window.addEventListener("blur", () => releasePointer());
       document.addEventListener("visibilitychange", () => {
-        if (document.hidden) release();
+        if (document.hidden) releasePointer();
       });
     }
 
